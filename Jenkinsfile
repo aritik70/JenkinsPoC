@@ -1,5 +1,8 @@
 pipeline {
-    agent {label "ritik"}
+
+    agent {
+        label 'ritik'
+    }
 
     environment {
         IMAGE_NAME = "flask-demo"
@@ -34,6 +37,7 @@ pipeline {
 
         stage('Upload Artifact to S3') {
             steps {
+
                 withCredentials([
                     [$class: 'AmazonWebServicesCredentialsBinding',
                     credentialsId: 'aws-creds']
@@ -50,6 +54,7 @@ pipeline {
     post {
 
         success {
+
             echo "SUCCESS: Artifact uploaded successfully"
 
             echo "Artifact Name: ${ARTIFACT_NAME}"
@@ -58,6 +63,7 @@ pipeline {
         }
 
         failure {
+
             echo "Build Failed"
         }
     }

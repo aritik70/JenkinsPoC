@@ -1,34 +1,52 @@
 pipeline {
-    agent any
+    agent {
+        label "ritik"
+    }
+
+    environment {
+        IMAGE_NAME = "flask-demo"
+        BUILD_TAG = "${BUILD_NUMBER}"
+        ARTIFACT_NAME = "flask-demo-${BUILD_NUMBER}.tar"
+    }
 
     stages {
 
-        stage('Clone Repo') {
+        stage('Checkout Code') {
             steps {
-                git 'https://github.com/YOUR_REPO.git'
+                checkout scm
             }
         }
 
-        stage('Install Dependencies') {
+        stage('Build Docker Image') {
             steps {
-                sh 'pip3 install -r requirements.txt'
+                sh """
+                docker build -t ${IMAGE_NAME}:${BUILD_TAG} .
+                """
             }
         }
 
-        stage('Test App') {
+        stage('Create Artifact') {
             steps {
-                sh 'python3 app.py &'
+                sh """
+                docker save -o ${ARTIFACT_NAME} ${IMAGE_NAME}:${BUILD_TAG}
+                """
             }
         }
 
-        stage('Deploy Application') {
+        stage('Archive Artifact') {
             steps {
-                sh '''
-                pkill -f app.py || true
-                nohup python3 app.py > app.log 2>&1 &
-                '''
+                archiveArtifacts artifacts: '*.tar', fingerprint: true
             }
         }
+    }
 
+    post {
+        success {
+            echo "SUCCESS: Artifact created successfully -> ${ARTIFACT_NAME}"
+        }
+
+        failure {
+            echo "Build Failed"
+        }
     }
 }

@@ -5,7 +5,7 @@ pipeline {
         IMAGE_NAME = "flask-demo"
         BUILD_TAG = "${BUILD_NUMBER}"
         ARTIFACT_NAME = "flask-demo-${BUILD_NUMBER}.tar"
-        S3_BUCKET = "jenkins-artifact-demo"
+        S3_BUCKET = "jenkins-pipeline-artifacts-123"
     }
 
     stages {

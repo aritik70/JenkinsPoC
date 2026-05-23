@@ -1,0 +1,24 @@
+version: 0.2
+
+phases:
+
+  install:
+    commands:
+      - echo "Installing dependencies"
+
+  pre_build:
+    commands:
+      - echo "Pre-build phase"
+
+  build:
+    commands:
+      - echo "Build started"
+      - zip -r flask-app.zip .
+
+  post_build:
+    commands:
+      - echo "Build completed"
+
+artifacts:
+  files:
+    - flask-app.zip

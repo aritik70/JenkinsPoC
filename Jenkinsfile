@@ -1,12 +1,11 @@
 pipeline {
-    agent {
-        label "ritik"
-    }
+    agent {label "ritik"}
 
     environment {
         IMAGE_NAME = "flask-demo"
         BUILD_TAG = "${BUILD_NUMBER}"
         ARTIFACT_NAME = "flask-demo-${BUILD_NUMBER}.tar"
+        S3_BUCKET = "jenkins-artifact-demo"
     }
 
     stages {
@@ -33,16 +32,29 @@ pipeline {
             }
         }
 
-        stage('Archive Artifact') {
+        stage('Upload Artifact to S3') {
             steps {
-                archiveArtifacts artifacts: '*.tar', fingerprint: true
+                withCredentials([
+                    [$class: 'AmazonWebServicesCredentialsBinding',
+                    credentialsId: 'aws-creds']
+                ]) {
+
+                    sh """
+                    aws s3 cp ${ARTIFACT_NAME} s3://${S3_BUCKET}/
+                    """
+                }
             }
         }
     }
 
     post {
+
         success {
-            echo "SUCCESS: Artifact created successfully -> ${ARTIFACT_NAME}"
+            echo "SUCCESS: Artifact uploaded successfully"
+
+            echo "Artifact Name: ${ARTIFACT_NAME}"
+
+            echo "S3 Path: s3://${S3_BUCKET}/${ARTIFACT_NAME}"
         }
 
         failure {

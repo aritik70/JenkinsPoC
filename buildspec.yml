@@ -8,10 +8,6 @@ env:
     EC2_HOST: 13.60.40.253
 
 phases:
-  install:
-    commands:
-      - echo Installing Docker
-
   pre_build:
     commands:
       - echo "Logging into ECR..."
@@ -20,6 +16,9 @@ phases:
       - echo "Setting up SSH key..."
       - echo "$PRIVATE_KEY_B64" | base64 -d > key.pem
       - chmod 400 key.pem
+
+      # DEBUG (remove later)
+      - echo "Checking key format..."
       - head -n 2 key.pem
 
   build:
@@ -44,7 +43,3 @@ phases:
           docker rm app || true &&
           docker run -d -p 80:5000 --name app $ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$IMAGE_REPO_NAME:latest
         "
-
-artifacts:
-  files:
-    - '**/*'

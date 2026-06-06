@@ -1,16 +1,38 @@
 version: 0.2
 
-phases:
+env:
+  variables:
+    AWS_DEFAULT_REGION: eu-north-1
+    IMAGE_REPO_NAME: testRitik
+    ACCOUNT_ID: 855735869574
+    EC2_HOST: 13.60.40.253
 
+phases:
+  install:
+    commands:
+      - echo Installing Docker
   pre_build:
     commands:
-      - echo "Pre build started"
+      - echo Logging into ECR
+      - aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin $ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com
 
   build:
     commands:
-      - echo "Building Docker image"
-      - docker build -t flask-demo .
+      - echo Building Docker image
+      - docker build -t $IMAGE_REPO_NAME .
+      - docker tag $IMAGE_REPO_NAME:latest $ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$IMAGE_REPO_NAME:latest
 
   post_build:
     commands:
-      - echo "Docker build completed"
+      - echo Pushing image
+      - docker push $ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$IMAGE_REPO_NAME:latest
+
+      # Deploy to EC2
+      - echo Deploying to EC2
+      - ssh -o StrictHostKeyChecking=no ubuntu@$EC2_HOST "
+          aws ecr get-login-password --region eu-north-1 | docker login --username AWS --password-stdin $ACCOUNT_ID.dkr.ecr.ap-south-1.amazonaws.com &&
+          docker pull $ACCOUNT_ID.dkr.ecr.eu-north-1.amazonaws.com/$IMAGE_REPO_NAME:latest &&
+          docker stop app || true &&
+          docker rm app || true &&
+          docker run -d -p 80:5000 --name app $ACCOUNT_ID.dkr.ecr.eu-north-1.amazonaws.com/$IMAGE_REPO_NAME:latest
+        "

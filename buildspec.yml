@@ -13,13 +13,13 @@ phases:
       - echo Installing Docker
 
   pre_build:
-  commands:
-    - echo "Logging into ECR..."
-    - aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin $ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com
+    commands:
+      - echo "Logging into ECR..."
+      - aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin $ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com
 
-    - echo "Setting up SSH key..."
-    - printf "%s\n" "$PRIVATE_KEY" > key.pem
-    - chmod 400 key.pem
+      - echo "Setting up SSH key..."
+      - printf "%s\n" "$PRIVATE_KEY" > key.pem
+      - chmod 400 key.pem
 
   build:
     commands:
@@ -34,7 +34,6 @@ phases:
       - echo "Pushing Docker image..."
       - docker push $ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$IMAGE_REPO_NAME:latest
 
-      # Deploy to EC2 (SSH)
       - echo "Deploying to EC2..."
 
       - ssh -i key.pem -o StrictHostKeyChecking=no ubuntu@$EC2_HOST "

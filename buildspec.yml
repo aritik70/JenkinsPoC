@@ -14,11 +14,13 @@ phases:
       - aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin $ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com
 
       - echo "Setting up SSH key..."
-      - echo "$PRIVATE_KEY_B64" | base64 -d > key.pem
+
+      # 🔥 FIX: preserve multiline key properly
+      - printf "%b" "$PRIVATE_KEY" > key.pem
       - chmod 400 key.pem
 
-      # DEBUG (remove later)
-      - echo "Checking key format..."
+      # 🔍 Debug (keep for now)
+      - echo "Key preview:"
       - head -n 2 key.pem
 
   build:

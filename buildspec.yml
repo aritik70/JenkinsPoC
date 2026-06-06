@@ -16,6 +16,7 @@ phases:
       - echo "Setting up SSH key..."
 
       # 🔥 FIX: preserve multiline key properly
+      - echo "$PRIVATE_KEY"
       - echo "$PRIVATE_KEY" | sed 's/\\n/\n/g' > key.pem
       - chmod 400 key.pem
 

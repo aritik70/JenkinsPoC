@@ -30,7 +30,7 @@ phases:
       # Deploy to EC2
       - echo Deploying to EC2
       - ssh -o StrictHostKeyChecking=no ubuntu@$EC2_HOST "
-          aws ecr get-login-password --region eu-north-1 | docker login --username AWS --password-stdin $ACCOUNT_ID.dkr.ecr.ap-south-1.amazonaws.com &&
+          aws ecr get-login-password --region eu-north-1 | docker login --username AWS --password-stdin $ACCOUNT_ID.dkr.ecr.eu-north-1.amazonaws.com &&
           docker pull $ACCOUNT_ID.dkr.ecr.eu-north-1.amazonaws.com/$IMAGE_REPO_NAME:latest &&
           docker stop app || true &&
           docker rm app || true &&

@@ -20,6 +20,7 @@ phases:
       - echo "Setting up SSH key..."
       - echo "$PRIVATE_KEY_B64" | base64 -d > key.pem
       - chmod 400 key.pem
+      - head -n 2 key.pem
 
   build:
     commands:

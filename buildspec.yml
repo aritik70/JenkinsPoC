@@ -22,11 +22,7 @@ phases:
     commands:
       - echo "Running SonarQube analysis..."
 
-      - ./sonar-scanner/bin/sonar-scanner \
-          -Dsonar.projectKey=testritik \
-          -Dsonar.sources=. \
-          -Dsonar.host.url=$SONAR_HOST_URL \
-          -Dsonar.login=$SONAR_TOKEN
+      - ./sonar-scanner/bin/sonar-scanner -Dsonar.projectKey=testritik -Dsonar.sources=. -Dsonar.host.url=$SONAR_HOST_URL -Dsonar.login=$SONAR_TOKEN
 
       - echo "Logging into ECR..."
       - aws ecr get-login-password --region $AWS_DEFAULT_REGION \

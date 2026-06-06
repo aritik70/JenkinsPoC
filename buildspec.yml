@@ -9,8 +9,8 @@ env:
 
 phases:
   install:
-    runtime-versions:
-      docker: 20
+    commands:
+      - echo Installing Docker
 
   pre_build:
     commands:

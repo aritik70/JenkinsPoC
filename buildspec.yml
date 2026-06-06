@@ -10,36 +10,44 @@ env:
 phases:
   install:
     commands:
-      - echo "Installing Sonar Scanner..."
-      - apt-get update -y
-      - apt-get install -y unzip wget
+      - echo "Installing dependencies..."
+      - yum install -y unzip wget
+
+      - echo "Downloading Sonar Scanner..."
       - wget https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-5.0.1.3006-linux.zip
       - unzip sonar-scanner-cli-*.zip
       - mv sonar-scanner-* sonar-scanner
-      - export PATH=$PATH:$(pwd)/sonar-scanner/bin
 
   pre_build:
     commands:
-      - echo "Running SonarQube Analysis..."
+      - echo "Running SonarQube analysis..."
 
-      - sonar-scanner \
+      - ./sonar-scanner/bin/sonar-scanner \
           -Dsonar.projectKey=testritik \
           -Dsonar.sources=. \
           -Dsonar.host.url=$SONAR_HOST_URL \
           -Dsonar.login=$SONAR_TOKEN
 
       - echo "Logging into ECR..."
-      - aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin $ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com
+      - aws ecr get-login-password --region $AWS_DEFAULT_REGION \
+        | docker login --username AWS --password-stdin $ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com
 
       - echo "Setting up SSH key..."
       - echo "$PRIVATE_KEY" | sed 's/\\n/\n/g' > key.pem
       - chmod 400 key.pem
 
+      # Debug (remove later)
+      - echo "Key preview:"
+      - head -n 2 key.pem
+
   build:
     commands:
       - echo "Building Docker image..."
       - docker build -t $IMAGE_REPO_NAME .
-      - docker tag $IMAGE_REPO_NAME:latest $ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$IMAGE_REPO_NAME:latest
+
+      - echo "Tagging Docker image..."
+      - docker tag $IMAGE_REPO_NAME:latest \
+        $ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$IMAGE_REPO_NAME:latest
 
   post_build:
     commands:

@@ -3,7 +3,7 @@ version: 0.2
 env:
   variables:
     AWS_DEFAULT_REGION: eu-north-1
-    IMAGE_REPO_NAME: testRitik
+    IMAGE_REPO_NAME: testritik
     ACCOUNT_ID: 855735869574
     EC2_HOST: 13.60.40.253
 
